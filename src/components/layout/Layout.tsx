@@ -1,10 +1,10 @@
-import { Navbar } from "../navbar/Navbar"
+import { Toaster } from "react-hot-toast"
 
 export const Layout = ({children}: {children: React.ReactNode}) => {
   return (
-    <div className="bg-red-500">
-      <Navbar/>
+    <div className="w-full h-screen bg-[#1E1E1E] overflow-auto">
+      <Toaster position="top-right" reverseOrder={true} />
       {children}
     </div>
-  )
+  );
 }
