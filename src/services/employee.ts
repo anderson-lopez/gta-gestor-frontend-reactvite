@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import toast from "react-hot-toast";
 import { Employee } from "../interface/employee";
 
@@ -13,30 +13,44 @@ export const getEmployees = async (): Promise<Employee[]> => {
   }
 };
 
-export const postEmployees = async (employee: Employee, action: (value: string | null) => void, refreshData: () => void): Promise<Employee | null> => {
+export const postEmployees = async (
+  employee: Employee,
+  action: (value: string | null) => void,
+  refreshData: () => void
+): Promise<Employee | null> => {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/employees`, employee);
+    const response: AxiosResponse<Employee> = await axios.post(`${import.meta.env.VITE_BASE_URL}/employees`, employee);
     const createdEmployee: Employee = response.data;
-    action(null)
-    refreshData()
+    action(null);
+    refreshData();
     toast.success('Empleado creado exitosamente');
     return createdEmployee;
   } catch (error) {
-    console.error('Error al crear empleado:', error);
-    if(error?.response.data.errors.id_number){
-      toast.error('Hay un Usuario creado con este Numero de Identificacion')
-    }
-    if (error?.response.data.errors.email) {
-      toast.error('Hay un Usuario creado con este Correo Electronico')
-    }
-    if (error?.response.data.errors) {
-      toast.error('Solo se permite caracteres de la A a la Z, mayúsculas, sin Acentuaciones, ni Ñ')
-    }
-    if (error?.response.data.errors.entry_date) {
-      toast.error('La fecha de ingreso no puede ser superior a la fecha actual')
+    if (isAxiosError(error)) {
+      const axiosError: AxiosError<any> = error;
+      console.error('Error al crear empleado:', axiosError.response?.data);
+      if (axiosError.response?.data.errors?.id_number) {
+        toast.error('Ya existe un empleado con este número de identificación');
+      } else if (axiosError.response?.data.errors?.email) {
+        toast.error('Ya existe un empleado con este correo electrónico');
+      } else if (axiosError.response?.data.errors) {
+        toast.error('Solo se permiten caracteres de la A a la Z, mayúsculas, sin acentos, ni Ñ');
+      } else if (axiosError.response?.data.errors?.entry_date) {
+        toast.error('La fecha de ingreso no puede ser superior a la fecha actual');
+      } else {
+        toast.error('Error al crear empleado');
+      }
+    } else {
+      console.error('Error desconocido al crear empleado:', error);
+      toast.error('Error al crear empleado');
     }
     return null;
   }
+};
+
+// Función para verificar si el error es de tipo AxiosError
+const isAxiosError = (error: unknown): error is AxiosError<any> => {
+  return (error as AxiosError<any>).isAxiosError !== undefined;
 };
 
 export const putEmployees = async (employee: Employee, id?: string | number | undefined, action?: (value: string | null) => void, refreshData?: () => void): Promise<Employee | null> => {
@@ -48,21 +62,23 @@ export const putEmployees = async (employee: Employee, id?: string | number | un
     toast.success('Empleado Actualizado exitosamente');
     return createdEmployee;
   } catch (error) {
-    console.error('Error al crear empleado:', error);
-    if(error?.response.data.errors.id_number){
-      toast.error('Hay un Usuario creado con este Numero de Identificacion')
-    }
-    if (error?.response.data.errors.email) {
-      toast.error('Hay un Usuario creado con este Correo Electronico')
-    }
-    if (error?.response.data.errors) {
-      toast.error('Solo se permite caracteres de la A a la Z, mayúsculas, sin Acentuaciones, ni Ñ')
-    }
-    if (error?.response.data.errors.entry_date) {
-      toast.error('La fecha de ingreso no puede ser superior a la fecha actual')
-    }
-    if (error?.response.data.errors.id_number) {
-      toast.error('El numero de identificacion no debe sobrepasar los 20 caracteres')
+    if (isAxiosError(error)) {
+      const axiosError: AxiosError<any> = error;
+      console.error('Error al crear empleado:', axiosError.response?.data);
+      if (axiosError.response?.data.errors?.id_number) {
+        toast.error('Ya existe un empleado con este número de identificación');
+      } else if (axiosError.response?.data.errors?.email) {
+        toast.error('Ya existe un empleado con este correo electrónico');
+      } else if (axiosError.response?.data.errors) {
+        toast.error('Solo se permiten caracteres de la A a la Z, mayúsculas, sin acentos, ni Ñ');
+      } else if (axiosError.response?.data.errors?.entry_date) {
+        toast.error('La fecha de ingreso no puede ser superior a la fecha actual');
+      } else {
+        toast.error('Error al crear empleado');
+      }
+    } else {
+      console.error('Error desconocido al crear empleado:', error);
+      toast.error('Error al crear empleado');
     }
     return null;
   }
