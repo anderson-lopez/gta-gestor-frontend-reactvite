@@ -2,13 +2,15 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import toast from "react-hot-toast";
 import { Employee } from "../interface/employee";
 
+/*eslint-disable*/
+
 export const getEmployees = async (): Promise<Employee[]> => {
   try {
     const { data }: { data: Employee[] } = await axios.get(`${import.meta.env.VITE_BASE_URL}/employees`);
     toast.success('data de empleados encontrada');
     return data;
   } catch (error) {
-    console.log(error);
+    console.log(error, 'aqui hay un error');
     return [];
   }
 };
@@ -27,6 +29,7 @@ export const postEmployees = async (
     return createdEmployee;
   } catch (error) {
     if (isAxiosError(error)) {
+      //eslint-disable-next-line
       const axiosError: AxiosError<any> = error;
       console.error('Error al crear empleado:', axiosError.response?.data);
       if (axiosError.response?.data.errors?.id_number) {
@@ -95,3 +98,5 @@ export const deleteEmployees = async (id: string | number | undefined, name: str
     return [];
   }
 };
+
+/*eslint-enable*/
